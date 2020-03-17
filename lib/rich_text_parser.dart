@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -166,6 +165,7 @@ class HtmlRichTextParser extends StatelessWidget {
     this.imageProperties,
     this.onImageTap,
     this.showImages = true,
+    this.useImageGalleries,
     this.galleryWidgetBuilder,
   });
 
@@ -183,6 +183,7 @@ class HtmlRichTextParser extends StatelessWidget {
   final ImageProperties imageProperties;
   final OnImageTap onImageTap;
   final bool showImages;
+  final bool useImageGalleries;
   final Function(List<Widget>) galleryWidgetBuilder;
 
   // style elements set a default style
@@ -335,7 +336,7 @@ class HtmlRichTextParser extends StatelessWidget {
       children.add(w);
     });
 
-    if (showImages) {
+    if (showImages && useImageGalleries) {
       children = mergeToBuckets(children).toList();
     }
     return Column(

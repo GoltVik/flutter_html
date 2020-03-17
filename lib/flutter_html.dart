@@ -31,7 +31,10 @@ class Html extends StatelessWidget {
     this.onImageTap,
     this.showImages = true,
     this.galleryWidgetBuilder,
-  }) : super(key: key);
+    this.useImageGalleries = false,
+  })  : assert(useImageGalleries ? useRichText == true : true,
+            'You can use gallaries only with RichText parser'),
+        super(key: key);
 
   final String data;
   final EdgeInsetsGeometry padding;
@@ -57,6 +60,7 @@ class Html extends StatelessWidget {
   final CustomTextStyle customTextStyle;
   final CustomTextAlign customTextAlign;
 
+  final bool useImageGalleries;
   final Function(List<Widget>) galleryWidgetBuilder;
 
   @override
@@ -83,6 +87,7 @@ class Html extends StatelessWidget {
                 imageProperties: imageProperties,
                 onImageTap: onImageTap,
                 showImages: showImages,
+                useImageGalleries: useImageGalleries,
                 galleryWidgetBuilder: galleryWidgetBuilder,
               )
             : HtmlOldParser(
