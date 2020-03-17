@@ -30,6 +30,7 @@ class Html extends StatelessWidget {
     this.imageProperties,
     this.onImageTap,
     this.showImages = true,
+    this.galleryWidgetBuilder,
   }) : super(key: key);
 
   final String data;
@@ -56,6 +57,8 @@ class Html extends StatelessWidget {
   final CustomTextStyle customTextStyle;
   final CustomTextAlign customTextAlign;
 
+  final Function(List<Widget>) galleryWidgetBuilder;
+
   @override
   Widget build(BuildContext context) {
     final double width = shrinkToFit ? null : MediaQuery.of(context).size.width;
@@ -80,6 +83,7 @@ class Html extends StatelessWidget {
                 imageProperties: imageProperties,
                 onImageTap: onImageTap,
                 showImages: showImages,
+                galleryWidgetBuilder: galleryWidgetBuilder,
               )
             : HtmlOldParser(
                 width: width,

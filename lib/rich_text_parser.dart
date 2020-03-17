@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -165,6 +166,7 @@ class HtmlRichTextParser extends StatelessWidget {
     this.imageProperties,
     this.onImageTap,
     this.showImages = true,
+    this.galleryWidgetBuilder,
   });
 
   final double indentSize = 10.0;
@@ -181,6 +183,7 @@ class HtmlRichTextParser extends StatelessWidget {
   final ImageProperties imageProperties;
   final OnImageTap onImageTap;
   final bool showImages;
+  final Function(List<Widget>) galleryWidgetBuilder;
 
   // style elements set a default style
   // for all child nodes
@@ -332,9 +335,54 @@ class HtmlRichTextParser extends StatelessWidget {
       children.add(w);
     });
 
+    if (showImages) {
+      children = mergeToBuckets(children).toList();
+    }
     return Column(
       children: children,
     );
+  }
+
+  Iterable<Widget> mergeToBuckets(List<Widget> children) sync* {
+    List<Widget> galleryBucket = List();
+    for (int i = 0; i < children.length; i++) {
+      if (i == 0 || i == children.length - 1) {
+        if (children[i].runtimeType == GestureDetector) {
+          yield _getGalleryItem(galleryBucket..add(children[i]));
+          galleryBucket.clear();
+        } else {
+          yield children[i];
+        }
+        continue;
+      }
+
+      if (children[i].runtimeType == BlockText) {
+        yield children[i];
+      } else if (children[i].runtimeType == GestureDetector) {
+        if (children[i - 1].runtimeType == children[i].runtimeType ||
+            children[i + 1].runtimeType == children[i].runtimeType) {
+          galleryBucket.add(children[i]);
+        } else {
+          yield children[i];
+          continue;
+        }
+
+        if (children[i + 1].runtimeType != children[i].runtimeType &&
+            galleryBucket.isNotEmpty) {
+          yield _getGalleryItem(galleryBucket);
+          galleryBucket.clear();
+        }
+      }
+    }
+  }
+
+  Widget _getGalleryItem(List<Widget> images) {
+    return galleryWidgetBuilder != null
+        ? galleryWidgetBuilder(List.of(images))
+        : SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: List.of(images)),
+          );
   }
 
   // THE WORKHORSE FUNCTION!!
@@ -788,7 +836,8 @@ class HtmlRichTextParser extends StatelessWidget {
                     },
                   ));
                 } else if (node.attributes['src'].startsWith('asset:')) {
-                  final assetPath = node.attributes['src'].replaceFirst('asset:', '');
+                  final assetPath =
+                      node.attributes['src'].replaceFirst('asset:', '');
                   precacheImage(
                     AssetImage(assetPath),
                     buildContext,
